@@ -1,0 +1,16 @@
+﻿<h1 class="bg-info text-white">Create Claim</h1>
+<a asp-action="Index" class="btn btn-secondary">Back</a>
+<div asp-validation-summary="All" class="text-danger"></div>
+
+
+<form method="post">
+	<div class="form-group">
+		<label for="ClaimType">Claim Type:</label>
+		<input type="text" id="ClaimType" name="ClaimType" class="form-control" required />
+	</div>
+	<div class="form-group">
+		<label for="ClaimValue">Claim Value:</label>
+		<input type="text" id="claimValue" name="claimValue" class="form-control" required />
+	</div>
+	<button type="submit" class="btn btn-primary">Create</button>
+</form>

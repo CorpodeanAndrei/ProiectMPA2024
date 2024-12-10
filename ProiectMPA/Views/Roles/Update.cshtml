@@ -1,0 +1,28 @@
+﻿@model ProiectMPA.Models.RoleEdit
+
+<h1>Update Role</h1>
+
+<form asp-action="Update" method="post">
+    <h2>@Model.Role.Name</h2>
+    <div>
+        <h3>Members</h3>
+        @foreach (var user in Model.Members)
+        {
+            <label>
+                <input type="checkbox" name="DeleteIds" value="@user.Id" /> @user.UserName
+            </label>
+        }
+    </div>
+
+    <div>
+        <h3>Non-Members</h3>
+        @foreach (var user in Model.NonMembers)
+        {
+            <label>
+                <input type="checkbox" name="AddIds" value="@user.Id" /> @user.UserName
+            </label>
+        }
+    </div>
+
+    <button type="submit">Save Changes</button>
+</form>

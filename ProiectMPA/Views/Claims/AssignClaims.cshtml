@@ -1,0 +1,51 @@
+﻿@model ProiectMPA.Models.AssignClaimsViewModel
+
+<h2>Assign Claims to @Model.UserId</h2>
+
+<form asp-action="AssignClaims" method="post">
+    <input type="hidden" name="userId" value="@Model.UserId" />
+
+    <!-- Dropdown to select claim type -->
+    <div class="form-group">
+        <label for="selectedClaimType">Claim Type</label>
+        <input type="text" name="selectedClaimType" id="selectedClaimType" class="form-control" required />
+    </div>
+
+    <!-- Dropdown to select claim value -->
+    <div class="form-group">
+        <label for="selectedClaimValue">Claim Value</label>
+        <input type="text" name="selectedClaimValue" id="selectedClaimValue" class="form-control" required />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Assign Claim</button>
+</form>
+
+<h3>Current Claims for User</h3>
+
+<table class="table table-sm table-bordered">
+    <thead>
+        <tr>
+            <th>Claim Type</th>
+            <th>Claim Value</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var claim in Model.Claims)
+        {
+            <tr>
+                <td>@claim.Type</td>
+                <td>@claim.Value</td>
+                <td>
+                    <!-- Add a delete button or link to remove the claim -->
+                    <form asp-action="RemoveClaim" method="post">
+                        <input type="hidden" name="userId" value="@Model.UserId" />
+                        <input type="hidden" name="claimType" value="@claim.Type" />
+                        <input type="hidden" name="claimValue" value="@claim.Value" />
+                        <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

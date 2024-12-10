@@ -1,0 +1,30 @@
+﻿@model IEnumerable<ProiectMPA.Models.UserClaimsViewModel>
+
+<h2 class="bg-primary m-1 p-1 text-white">Users and Claims</h2>
+
+<table class="table table-sm table-bordered">
+    <thead>
+        <tr>
+            <th>User</th>
+            <th>Claims</th>
+            <th>Assign Claim</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.UserName</td>
+                <td>
+                    @foreach (var claim in user.Claims)
+                    {
+                        <p>@claim.Type: @claim.Value</p>
+                    }
+                </td>
+                <td>
+                    <a asp-action="AssignClaims" asp-route-userId="@user.UserId" class="btn btn-sm btn-primary">Assign Claim</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,51 @@
+﻿@model ProiectMPA.Models.AssignRolesViewModel
+
+<h2>Manage Role: @Model.RoleName</h2>
+
+<form method="post" asp-action="AssignRoleToUser">
+    <input type="hidden" name="RoleId" value="@Model.RoleId" />
+
+    <h4>Members</h4>
+    <table class="table table-sm table-bordered">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Remove</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model.Members)
+            {
+                <tr>
+                    <td>@user.UserName</td>
+                    <td>
+                        <input type="checkbox" name="NonMemberIds" value="@user.UserId" />
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <h4>Non-Members</h4>
+    <table class="table table-sm table-bordered">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Add</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model.NonMembers)
+            {
+                <tr>
+                    <td>@user.UserName</td>
+                    <td>
+                        <input type="checkbox" name="MemberIds" value="@user.UserId" />
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+</form>

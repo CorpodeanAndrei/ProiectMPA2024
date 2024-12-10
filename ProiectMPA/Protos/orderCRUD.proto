@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+option csharp_namespace = "GRPCService";
+
+package orders;
+
+service OrderService {
+ rpc GetAll (Empty) returns (OrderList) {}
+ rpc Get (OrderId) returns (Order) {}
+ rpc Insert (Order) returns (Empty) {}
+ rpc Update (Order) returns (Order) {}
+ rpc Delete (OrderId) returns (Empty) {}
+}
+message Empty {}
+
+message Order {
+ int32 orderId = 1;
+ int32 clientId = 2;
+ int32 carId = 3;
+ string orderDate = 4;
+ string client = 5;
+ string car = 6;
+}
+
+message OrderList {
+ repeated Order item = 1;
+}
+
+message OrderId {
+ int32 id = 1;
+}
