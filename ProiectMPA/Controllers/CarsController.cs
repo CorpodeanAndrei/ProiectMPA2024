@@ -1,8 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Channels;
 using System.Threading.Tasks;
+using Grpc.Net.Client;
+using GRPCService;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors.Infrastructure;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -16,11 +21,15 @@ namespace ProiectMPA.Controllers
     [Authorize(Roles = "Admin")]
     public class CarsController : Controller
     {
+        private readonly GrpcChannel _channel;
+        private UserManager<IdentityUser> _userManager;
         private readonly ProiectMPAContext _context;
 
-        public CarsController(ProiectMPAContext context)
+        public CarsController(ProiectMPAContext context, UserManager<IdentityUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
+            _channel = GrpcChannel.ForAddress("https://localhost:7152");
         }
 
         // GET: Cars
@@ -109,8 +118,8 @@ namespace ProiectMPA.Controllers
             var car = await _context.Car
                 .Include(c => c.ChasisType)
                 .Include(c => c.Manufacturer)
-                .Include(s => s.Orders)
-                .AsNoTracking()
+                //.Include(s => s.Orders)
+                //.AsNoTracking()
                 .FirstOrDefaultAsync(m => m.ID == id);
 
             if (car == null)
@@ -249,5 +258,80 @@ namespace ProiectMPA.Controllers
         {
             return _context.Car.Any(e => e.ID == id);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateOrder(int carId)
+        {
+            // Get the car from the database
+            var car = await _context.Car
+                .Include(c => c.Manufacturer)
+                .FirstOrDefaultAsync(c => c.ID == carId);
+
+            if (car == null)
+            {
+                ModelState.AddModelError("", "Mașina nu a fost găsită.");
+                return RedirectToAction("Index", "Cars");
+            }
+
+            try
+            {
+                // Get the current logged-in user
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    ModelState.AddModelError("", "Trebuie să fiți autentificat pentru a plasa o comandă.");
+                    return RedirectToAction("Index", "Cars");
+                }
+
+                // Check if a Client exists for the current user
+                //var client = await _context.Client.FirstOrDefaultAsync(c => c.UserId == user.Id);
+
+                // If client does not exist, create it
+                //if (client == null)
+                //{
+                //    client = new Client
+                //    {
+                //        Name = user.UserName,  // Use any other field you want, like Email
+                //        UserId = user.Id
+                //    };
+
+                //    _context.Client.Add(client);
+                //    await _context.SaveChangesAsync();  // Save the client to the database
+
+                //    // Debug: Check if client was saved
+                //    Console.WriteLine($"Clientul a fost salvat cu ID {client.Id}");
+                //}
+
+                // Create the order for the gRPC service
+                //var orderClient = new OrderService.OrderServiceClient(_channel);
+                //var grpcOrder = new GRPCService.Order
+                //{
+                //    OrderId = 0,  // ID-ul comenzii va fi generat pe server sau de gRPC
+                //    CarId = carId,
+                //    ClientId = client.Id,  // Associate with the client ID
+                //    OrderDate = DateTime.Now.ToString("yyyy-MM-dd")
+                //};
+
+                //// Debug: Verify order details
+                //Console.WriteLine($"Creăm order pentru carId {carId} și clientId {client.Id}.");
+
+                //// Send the order to the gRPC server
+                //var response = orderClient.Insert(grpcOrder);
+
+                // Debug: Check response from gRPC
+                //Console.WriteLine($"Comanda a fost trimisă cu succes. Răspuns: {response}");
+
+                TempData["Message"] = "Comanda a fost plasată cu succes!";
+                return RedirectToAction("Index", "Cars");
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                Console.WriteLine($"Eroare la trimiterea comenzii: {ex.Message}");
+                ModelState.AddModelError("", $"Eroare la crearea comenzii: {ex.Message}");
+                return RedirectToAction("Index", "Cars");
+            }
+        }
+
     }
 }

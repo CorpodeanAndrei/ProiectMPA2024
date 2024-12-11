@@ -63,47 +63,43 @@ namespace GrpcService.Services
 
         public override Task<Empty> Insert(Order requestData, ServerCallContext context)
         {
-            //try
-            //{
-            //var cityId = requestData.CityID == 0 ? 1 : requestData.CityID;
-            Console.WriteLine($"Order received: ID={requestData.OrderId}, ClientID={requestData.ClientId}, CarID={requestData.CarId}, OrderDate={requestData.OrderDate}, Client={requestData.Client}, Car={requestData.Car}");
-
-            var client = db.Client.FirstOrDefault(c => c.ClientID == requestData.ClientId);
-            var car = db.Car.FirstOrDefault(c => c.ID == requestData.CarId);
-
-            if (client == null)
+            try
             {
-                throw new RpcException(new Status(StatusCode.InvalidArgument, "Invalid ClientID"));
+                var client = db.Client.FirstOrDefault(c => c.ClientID == requestData.ClientId);
+                var car = db.Car.FirstOrDefault(c => c.ID == requestData.CarId);
+
+                if (client == null || car == null)
+                {
+                    throw new RpcException(new Status(StatusCode.InvalidArgument, "Invalid ClientID or CarID"));
+                }
+
+                var order = new ProiectMPA.Models.Order
+                {
+                    ClientID = client.ClientID,
+                    CarID = car.ID,
+                    OrderDate = DateTime.Parse(requestData.OrderDate)
+                };
+
+                db.Order.Add(order);
+                db.SaveChanges();
+
+                return Task.FromResult(new Empty());
             }
-
-            if (car == null)
+            catch (DbUpdateException dbEx)
             {
-                throw new RpcException(new Status(StatusCode.InvalidArgument, "Invalid CarID"));
+                // Log the database update exception
+                //_logger.LogError($"Database error: {dbEx.Message}");
+                throw new RpcException(new Status(StatusCode.Internal, "Error saving changes to database."));
             }
-
-            // Map gRPC Customer to internal Customer model
-            var order = new ProiectMPA.Models.Order
+            catch (Exception ex)
             {
-                OrderID = requestData.OrderId,
-                ClientID = requestData.ClientId == 0 ? null : requestData.ClientId,
-                CarID = requestData.CarId == 0 ? null : requestData.CarId,
-                OrderDate = !string.IsNullOrWhiteSpace(requestData.OrderDate) ? DateTime.Parse(requestData.OrderDate) : DateTime.MinValue,
-                Client = client,
-                Car = car
-            };
-
-            // Save to database
-            db.Order.Add(order);
-            db.SaveChanges();
-
-            return Task.FromResult(new Empty());
-            //}
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine($"Eroare inserare: {ex.Message}");
-            //    throw new RpcException(new Status(StatusCode.Internal, $"Error: {ex.Message}"));
-            //}
+                // General error logging
+                //_logger.LogError($"Error inserting order: {ex.Message}");
+                throw new RpcException(new Status(StatusCode.Internal, $"Error inserting order: {ex.Message}"));
+            }
         }
+
+
 
         public override Task<Order> Get(OrderId requestData, ServerCallContext context)
         {
@@ -186,34 +182,34 @@ namespace GrpcService.Services
                 Car = car.Model
             });
 
-            // Parse OrderDate if provided
-            //if (!string.IsNullOrWhiteSpace(request.OrderDate))
-            //{
-            //    if (DateTime.TryParse(request.OrderDate, out var parsedDate))
-            //    {
-            //        existingOrder.OrderDate = parsedDate;
-            //    }
-            //    else
-            //    {
-            //        throw new RpcException(new Status(StatusCode.InvalidArgument, "Invalid OrderDate format"));
-            //    }
-            //}
+            //Parse OrderDate if provided
+            if (!string.IsNullOrWhiteSpace(request.OrderDate))
+                {
+                    if (DateTime.TryParse(request.OrderDate, out var parsedDate))
+                    {
+                        existingOrder.OrderDate = parsedDate;
+                    }
+                    else
+                    {
+                        throw new RpcException(new Status(StatusCode.InvalidArgument, "Invalid OrderDate format"));
+                    }
+                }
 
-            //db.Order.Update(existingOrder);
-            //db.SaveChanges();
+            db.Order.Update(existingOrder);
+            db.SaveChanges();
 
-            // Return updated order
-            //var updatedOrder = new Order()
-            //{
-            //    OrderId = existingOrder.OrderID,
-            //    ClientId = existingOrder.ClientID ?? 0,
-            //    CarId = existingOrder.CarID ?? 0,
-            //    OrderDate = existingOrder.OrderDate.ToString("o"), // Convert back to ISO 8601 string
-            //    Client = existingOrder.Client?.Name ?? string.Empty,
-            //    Car = existingOrder.Car?.Model ?? string.Empty,
-            //};
+            //Return updated order
+           var updatedOrder = new Order()
+           {
+               OrderId = existingOrder.OrderID,
+               ClientId = existingOrder.ClientID ?? 0,
+               CarId = existingOrder.CarID ?? 0,
+               OrderDate = existingOrder.OrderDate.ToString("o"), // Convert back to ISO 8601 string
+               Client = existingOrder.Client?.Name ?? string.Empty,
+               Car = existingOrder.Car?.Model ?? string.Empty,
+           };
 
-            //return Task.FromResult(updatedOrder);
+            return Task.FromResult(updatedOrder);
         }
     }
 }

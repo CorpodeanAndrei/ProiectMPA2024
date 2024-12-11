@@ -11,7 +11,7 @@ using ProiectMPA.Models;
 
 namespace ProiectMPA.Controllers
 {
-    [Authorize(Roles = "Employee")]
+    [Authorize(Roles = "Admin")]
     public class ClientsController : Controller
     {
         private readonly ProiectMPAContext _context;

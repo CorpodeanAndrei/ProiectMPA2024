@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProiectMPA.Data;
 
@@ -11,9 +12,11 @@ using ProiectMPA.Data;
 namespace ProiectMPA.Migrations
 {
     [DbContext(typeof(ProiectMPAContext))]
-    partial class ProiectMPAContextModelSnapshot : ModelSnapshot
+    [Migration("20241211123715_Merge")]
+    partial class Merge
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

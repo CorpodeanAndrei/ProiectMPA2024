@@ -55,6 +55,9 @@
         </dd>
     </dl>
 </div>
+<form method="get" asp-action="CreateOrder" asp-route-carId="@Model.ID">
+    <button type="submit" class="btn btn-primary">Cumpără această mașină</button>
+</form>
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.ID">Edit</a> |
     <a asp-action="Index">Back to List</a>

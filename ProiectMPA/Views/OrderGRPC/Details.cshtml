@@ -1,0 +1,30 @@
+﻿@model GRPCService.Order
+
+@{
+    ViewData["Title"] = "Order Details";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div>
+    <h3>Order Details</h3>
+
+    <div>
+        <strong>Order ID:</strong> @Model.OrderId
+    </div>
+    <div>
+        <strong>Client:</strong> @Model.Client
+    </div>
+    <div>
+        <strong>Car:</strong> @Model.Car
+    </div>
+    <div>
+        <strong>Order Date:</strong> @Model.OrderDate
+    </div>
+
+    <div>
+        <a href="@Url.Action("Edit", "OrderGrpc", new { id = Model.OrderId })" class="btn btn-primary">Edit</a>
+        <a href="@Url.Action("Delete", "OrderGrpc", new { id = Model.OrderId })" class="btn btn-danger">Delete</a>
+        <a href="@Url.Action("Index", "OrderGrpc")" class="btn btn-secondary">Back to Orders</a>
+    </div>
+</div>
